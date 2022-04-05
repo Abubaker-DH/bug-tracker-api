@@ -7,6 +7,7 @@ const bugSchema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
+    status: { type: String },
     projectId: {
       type: Schema.Types.ObjectId,
       ref: "Project",
@@ -25,6 +26,7 @@ function validatebug(bug) {
   const schema = Joi.object({
     title: Joi.string().min(3).max(50).required(),
     description: Joi.string(),
+    status: Joi.string(),
     projectId: Joi.objectid().required(),
     user: Joi.objectId().required(),
   });
