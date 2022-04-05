@@ -3,9 +3,15 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const projectSchema = new Schema(
+const bugSchema = new Schema(
   {
     title: { type: String, required: true },
+    description: { type: String },
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -15,14 +21,16 @@ const projectSchema = new Schema(
   { timestamps: true }
 );
 
-function validateProject(project) {
+function validatebug(bug) {
   const schema = Joi.object({
     title: Joi.string().min(3).max(50).required(),
+    description: Joi.string(),
+    projectId: Joi.objectid().required(),
     user: Joi.objectId().required(),
   });
 
-  return schema.validate(project);
+  return schema.validate(bug);
 }
 
-module.exports.Project = mongoose.model("Project", projectSchema);
-exports.validateProject = validateProject;
+module.exports.Bug = mongoose.model("Bug", bugSchema);
+exports.validatebug = validatebug;
