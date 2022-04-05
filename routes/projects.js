@@ -1,19 +1,22 @@
 const { Project, validateProject } = require("../models/project");
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
 // NOTE: get all projects
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   let projects;
-  // INFO: admin will get all projects
-
-  projects = await Project.find().populate("user", "-isAdmin");
+  // INFO: user will get all projects
+  projects = await Project.find({ user: req.user._id }).populate(
+    "user",
+    "-isAdmin"
+  );
 
   res.send(projects);
 });
 
 // NOTE: add new project
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   req.body.user = req.user._id;
   // INFO:  validate data send by user
   const { error } = validateProject(req.body);
@@ -29,8 +32,17 @@ router.post("/", async (req, res) => {
 });
 
 // NOTE: update project
-router.patch("/:id", async (req, res) => {
-  const project = await Project.findByIdAndUpdate(
+router.patch("/:id", auth, async (req, res) => {
+  let project = await Project.findById(req.params.id);
+  if (!project)
+    return res.status(404).send(" The project with given ID was not found.");
+
+  // INFO: the owner or admin can update the project
+  if (req.user._id !== project.user._id || req.user.isAdmin === "false") {
+    return res.status(405).send("Method not allowed.");
+  }
+
+  project = await Project.findByIdAndUpdate(
     req.params.id,
     {
       title: req.body.title,
@@ -38,28 +50,40 @@ router.patch("/:id", async (req, res) => {
     { new: true }
   );
 
-  if (!project)
-    return res.status(404).send(" The project with given ID was not found.");
   res.send(project);
 });
 
 // NOTE: delete one project by id
-router.delete("/:id", async (req, res) => {
-  const project = await Project.findByIdAndRemove(req.params.id);
+router.delete("/:id", auth, async (req, res) => {
+  let project = await Project.findById(req.params.id);
   if (!project)
     return res.status(404).send(" The project with given ID was not found.");
 
+  // INFO: the owner or admin can delete the project
+  if (req.user._id !== project.user._id || req.user.isAdmin === "false") {
+    return res.status(405).send("Method not allowed.");
+  }
+
+  project = await Project.findByIdAndRemove(req.params.id);
   return res.send(project);
 });
 
 // NOTE: get one project route
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   const project = await Project.findById(req.params.id).populate(
     "user",
     "name _id profileImage"
   );
   if (!project)
     return res.status(404).send(" The project with given ID was not found.");
+
+  // INFO: the owner or admin can get project details
+  if (
+    req.user._id.toString() !== project.user._id.toString() ||
+    req.user.isAdmin === "false"
+  ) {
+    return res.status(405).send("Method not allowed.");
+  }
 
   res.send(project);
 });

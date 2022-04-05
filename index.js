@@ -4,12 +4,14 @@ import dotenv from "dotenv";
 const projects = require("../routes/projects");
 const Bugs = require("../routes/bugs");
 const users = require("../routes/users");
+const auth = require("../routes/auth");
 
 const app = express();
 app.use(express.json());
 dotenv.config();
 
 app.use("/api/v1/users", users);
+app.use("/api/v1/auth", auth);
 app.use("/api/v1/projects", projects);
 app.use("/api/v1/bugs", Bugs);
 
