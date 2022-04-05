@@ -1,6 +1,7 @@
 const { Project, validateProject } = require("../models/project");
 const express = require("express");
 const auth = require("../middleware/auth");
+const validateObjectId = require("../middleware/validateObjectId");
 const router = express.Router();
 
 // NOTE: get all projects
@@ -32,7 +33,7 @@ router.post("/", auth, async (req, res) => {
 });
 
 // NOTE: update project
-router.patch("/:id", auth, async (req, res) => {
+router.patch("/:id", [auth, validateObjectId], async (req, res) => {
   let project = await Project.findById(req.params.id);
   if (!project)
     return res.status(404).send(" The project with given ID was not found.");
@@ -54,7 +55,7 @@ router.patch("/:id", auth, async (req, res) => {
 });
 
 // NOTE: delete one project by id
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", [auth, validateObjectId], async (req, res) => {
   let project = await Project.findById(req.params.id);
   if (!project)
     return res.status(404).send(" The project with given ID was not found.");
@@ -69,7 +70,7 @@ router.delete("/:id", auth, async (req, res) => {
 });
 
 // NOTE: get one project route
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", [auth, validateObjectId], async (req, res) => {
   const project = await Project.findById(req.params.id).populate(
     "user",
     "name _id profileImage"

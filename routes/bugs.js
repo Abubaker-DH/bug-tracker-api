@@ -1,6 +1,7 @@
 const { Bug, validateBug } = require("../models/bug");
 const auth = require("../middleware/auth");
 const express = require("express");
+const validateObjectId = require("../middleware/validateObjectId");
 const router = express.Router();
 
 // NOTE: get all Bugs
@@ -38,7 +39,7 @@ router.post("/", auth, async (req, res) => {
 });
 
 // NOTE: update bug
-router.patch("/:id", auth, async (req, res) => {
+router.patch("/:id", [auth, validateObjectId], async (req, res) => {
   let bug = await Bug.findById(req.params.id);
   if (!bug)
     return res.status(404).send(" The bug with given ID was not found.");
@@ -63,7 +64,7 @@ router.patch("/:id", auth, async (req, res) => {
 });
 
 // NOTE: delete one bug by id
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", [auth, validateObjectId], async (req, res) => {
   let bug = await Bug.findById(req.params.id);
   if (!bug)
     return res.status(404).send(" The bug with given ID was not found.");
@@ -77,7 +78,7 @@ router.delete("/:id", auth, async (req, res) => {
 });
 
 // NOTE: get one bug route
-router.get("/:id", async (req, res) => {
+router.get("/:id", [auth, validateObjectId], async (req, res) => {
   let bug = await Bug.findById(req.params.id);
   if (!bug)
     return res.status(404).send(" The bug with given ID was not found.");
