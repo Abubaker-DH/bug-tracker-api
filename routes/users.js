@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const { User, validateUser } = require("../models/user");
 const auth = require("../middleware/auth");
@@ -31,9 +33,6 @@ router.patch("/:id", [auth, validateObjectId], async (req, res) => {
   if (!user)
     return res.status(404).send("The user with given ID was not found");
 
-  const { error } = validateUser(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
   // INFO:  the owner or admin can update
   if (
     req.user._id.toString() !== req.params.id.toString() ||
@@ -47,12 +46,23 @@ router.patch("/:id", [auth, validateObjectId], async (req, res) => {
     return res.status(403).send("method not allowed.");
   }
 
+  // INFO: get the profile image from req.file
+  if (req.file) {
+    req.body.profileImage = req.file.path;
+  }
+
+  const { error } = validateUser(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  //  INFO: delete the old image
+  if (req.body.profileImage || req.body.profileImage === "")
+    clearImage(user.profileImage);
+
   user = await User.findByIdAndUpdate(
     { _id: req.params.id },
     {
       name: req.body.name,
       profileImage: req.body.profileImage,
-      password: req.body.password,
       isAdmin: req.body.isAdmin,
     },
     { new: true }
@@ -71,7 +81,17 @@ router.delete("/:id", [auth, admin, validateObjectId], async (req, res) => {
   if (!user)
     return res.status(404).send("The user with given ID was not found.");
 
+  if (user.profileImage) {
+    clearImage(user.profileImage);
+  }
   res.send(user);
 });
 
+// NOTE: delete profile image from images Folder
+const clearImage = (filePath) => {
+  filePath = path.join(__dirname, "..", filePath);
+  fs.unlink(filePath, (err) => {
+    return err;
+  });
+};
 module.exports = router;

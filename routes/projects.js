@@ -7,7 +7,13 @@ const router = express.Router();
 // NOTE: get all projects
 router.get("/", auth, async (req, res) => {
   let projects;
-  // INFO: user will get all projects
+  // INFO: admin will get all projects
+  if (req.user.isAdmin) {
+    projects = await Project.find().populate("user", "-isAdmin").select("-__v");
+    return res.send(projects);
+  }
+
+  // INFO: user will get owen project
   projects = await Project.find({ user: req.user._id }).populate(
     "user",
     "-isAdmin"
