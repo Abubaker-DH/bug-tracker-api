@@ -1,4 +1,9 @@
 const path = require("path");
+const helmet = require("helmet");
+const cors = require("cors");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const compression = require("compression");
 const multer = require("multer");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -14,6 +19,21 @@ const app = express();
 Joi.objectId = require("joi-objectid")(Joi);
 app.use(express.json());
 dotenv.config();
+
+// INFO: if we behind a proxy
+app.set("trust proxy", 1);
+// INFO: use it to limit number of reqest
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  })
+);
+//  INFO: production packages
+app.use(cors());
+app.use(xss());
+app.use(helmet());
+app.use(compression());
 
 // INFO: Setup image folder and image name OR image URL
 const fileStorage = multer.diskStorage({
@@ -53,6 +73,9 @@ app.use(
 );
 app.use("/images", express.static(path.join(__dirname, "images")));
 
+// INFO: logging error middleware
+require("./middleware/log")();
+
 // INFO: api routes
 app.use("/api/v1/users", users);
 app.use("/api/v1/auth", auth);
@@ -70,6 +93,5 @@ mongoose
     useNewUrlParser: true,
   })
   .then(() =>
-    app.listen(PORT, () => console.log(`server running on port ${PORT} ...`))
-  )
-  .catch((error) => console.log(error.message));
+    app.listen(PORT, () => winston.info(`server running on port ${PORT} ...`))
+  );
