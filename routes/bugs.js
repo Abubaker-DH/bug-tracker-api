@@ -1,7 +1,8 @@
-const { Bug, validateBug } = require("../models/bug");
-const auth = require("../middleware/auth");
 const express = require("express");
+const { Bug, validateBug } = require("../models/bug");
+const { Project } = require("../models/project");
 const validateObjectId = require("../middleware/validateObjectId");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
 // NOTE: get all Bugs
@@ -9,12 +10,17 @@ router.get("/", auth, async (req, res) => {
   let bugs;
   // INFO: admin will get all bugs
   if (req.user.isAdmin) {
-    bugs = await Bug.find().populate("user", "-isAdmin").select("-__v");
+    bugs = await Bug.find()
+      .populate("user", "name email profileImage")
+      .select("-__v");
     return res.send(bugs);
   }
 
   // INFO: user get all bugs
-  bugs = await Bug.find({ user: req.user._id }).populate("user", "-isAdmin");
+  bugs = await Bug.find({ user: req.user._id }).populate(
+    "user",
+    "name email profileImage"
+  );
 
   res.send(bugs);
 });
@@ -33,7 +39,17 @@ router.post("/", auth, async (req, res) => {
     projectId: req.body.projectId,
     user: req.user._id,
   });
-  await bug.save();
+
+  try {
+    const project = await Project.findById(req.body.projectId);
+    const updateBugs = [...project.bugs];
+    updateBugs.push({ bugId: bug._id });
+    project.bugs = updateBugs;
+    await bug.save();
+    await project.save();
+  } catch (error) {
+    console.log("Error saving bug", error);
+  }
 
   res.status(201).send(bug);
 });

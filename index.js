@@ -1,4 +1,5 @@
 const path = require("path");
+const winston = require("winston");
 const helmet = require("helmet");
 const cors = require("cors");
 const xss = require("xss-clean");
@@ -9,11 +10,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Joi = require("joi");
 const dotenv = require("dotenv");
-const error = require("../middleware/error");
-const projects = require("../routes/projects");
-const Bugs = require("../routes/bugs");
-const users = require("../routes/users");
-const auth = require("../routes/auth");
+const error = require("./middleware/error");
+const projects = require("./routes/projects");
+const Bugs = require("./routes/bugs");
+const users = require("./routes/users");
+const auth = require("./routes/auth");
 
 const app = express();
 Joi.objectId = require("joi-objectid")(Joi);
@@ -83,7 +84,7 @@ app.use("/api/v1/projects", projects);
 app.use("/api/v1/bugs", Bugs);
 app.use(error);
 
-const MONGO_URL = process.env.MONGO_URL;
+const MONGO_URL = process.env.MONGO_URI;
 const PORT = process.env.PORT || 5000;
 
 mongoose

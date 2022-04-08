@@ -22,12 +22,12 @@ const bugSchema = new Schema(
   { timestamps: true }
 );
 
-function validatebug(bug) {
+function validateBug(bug) {
   const schema = Joi.object({
     title: Joi.string().min(3).max(50).required(),
     description: Joi.string(),
     status: Joi.string(),
-    projectId: Joi.objectid().required(),
+    projectId: Joi.objectId().required(),
     user: Joi.objectId().required(),
   });
 
@@ -35,4 +35,4 @@ function validatebug(bug) {
 }
 
 module.exports.Bug = mongoose.model("Bug", bugSchema);
-exports.validatebug = validatebug;
+exports.validateBug = validateBug;
