@@ -2,6 +2,8 @@ const { Project, validateProject } = require("../models/project");
 const express = require("express");
 const auth = require("../middleware/auth");
 const validateObjectId = require("../middleware/validateObjectId");
+const { Bug } = require("../models/bug");
+const { default: mongoose } = require("mongoose");
 const router = express.Router();
 
 // NOTE: get all projects
@@ -14,10 +16,9 @@ router.get("/", auth, async (req, res) => {
   }
 
   // INFO: user will get owen project
-  projects = await Project.find({ user: req.user._id }).populate(
-    "user",
-    "-isAdmin"
-  );
+  projects = await Project.find({ user: req.user._id })
+    .populate("user", "-isAdmin")
+    .populate("bugId");
 
   res.send(projects);
 });
@@ -67,20 +68,42 @@ router.delete("/:id", [auth, validateObjectId], async (req, res) => {
     return res.status(404).send(" The project with given ID was not found.");
 
   // INFO: the owner or admin can delete the project
-  if (req.user._id !== project.user._id || req.user.isAdmin === "false") {
+  if (
+    req.user._id.toString() !== project.user._id.toString() ||
+    req.user.isAdmin === "false"
+  ) {
     return res.status(405).send("Method not allowed.");
   }
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    project = await Project.findByIdAndRemove(req.params.id, { session });
+    if (project.bugs.length > 0) {
+      const { deletedCount } = await Bug.deleteMany(
+        { projectId: req.params.id },
+        { session }
+      );
+      if (deletedCount == 0) {
+        await session.abortTransaction();
+        return res.send("failed to delete project ");
+      }
+    }
 
-  project = await Project.findByIdAndRemove(req.params.id);
-  return res.send(project);
+    await session.commitTransaction();
+    return res.send(project);
+  } catch (error) {
+    console.log("error deleting project with bugs", error);
+    await session.abortTransaction();
+  } finally {
+    await session.endSession();
+  }
 });
 
 // NOTE: get one project route
 router.get("/:id", [auth, validateObjectId], async (req, res) => {
-  const project = await Project.findById(req.params.id).populate(
-    "user",
-    "name _id profileImage"
-  );
+  const project = await Project.findById(req.params.id)
+    .populate("user", "name _id profileImage")
+    .populate("bugs.bugId");
   if (!project)
     return res.status(404).send(" The project with given ID was not found.");
 

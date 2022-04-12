@@ -3,6 +3,7 @@ const { Bug, validateBug } = require("../models/bug");
 const { Project } = require("../models/project");
 const validateObjectId = require("../middleware/validateObjectId");
 const auth = require("../middleware/auth");
+const { default: mongoose } = require("mongoose");
 const router = express.Router();
 
 // NOTE: get all Bugs
@@ -32,6 +33,10 @@ router.post("/", auth, async (req, res) => {
   const { error } = validateBug(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  const project = await Project.findById(req.body.projectId);
+  if (!project)
+    return res.status(404).send("The projcet with given ID was not found.");
+
   const bug = new Bug({
     title: req.body.title,
     description: req.body.description,
@@ -41,7 +46,6 @@ router.post("/", auth, async (req, res) => {
   });
 
   try {
-    const project = await Project.findById(req.body.projectId);
     const updateBugs = [...project.bugs];
     updateBugs.push({ bugId: bug._id });
     project.bugs = updateBugs;
@@ -50,7 +54,6 @@ router.post("/", auth, async (req, res) => {
   } catch (error) {
     console.log("Error saving bug", error);
   }
-
   res.status(201).send(bug);
 });
 
@@ -64,14 +67,13 @@ router.patch("/:id", [auth, validateObjectId], async (req, res) => {
   if (req.user._id !== bug.user._id || req.user.isAdmin === "false") {
     return res.status(405).send("Method not allowed.");
   }
+
   bug = await Bug.findByIdAndUpdate(
     req.params.id,
     {
       title: req.body.title,
       description: req.body.description,
       status: req.body.status,
-      projectId: req.body.projectId,
-      user: req.user._id,
     },
     { new: true }
   );
