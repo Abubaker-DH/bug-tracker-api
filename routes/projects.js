@@ -1,9 +1,9 @@
-const { Project, validateProject } = require("../models/project");
+const mongoose = require("mongoose");
 const express = require("express");
 const auth = require("../middleware/auth");
 const validateObjectId = require("../middleware/validateObjectId");
+const { Project, validateProject } = require("../models/project");
 const { Bug } = require("../models/bug");
-const { default: mongoose } = require("mongoose");
 const router = express.Router();
 
 // NOTE: get all projects
@@ -46,7 +46,10 @@ router.patch("/:id", [auth, validateObjectId], async (req, res) => {
     return res.status(404).send(" The project with given ID was not found.");
 
   // INFO: the owner or admin can update the project
-  if (req.user._id !== project.user._id || req.user.isAdmin === "false") {
+  if (
+    req.user._id.toString() !== project.user._id.toString() ||
+    req.user.isAdmin === "false"
+  ) {
     return res.status(405).send("Method not allowed.");
   }
 

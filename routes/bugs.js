@@ -1,9 +1,9 @@
 const express = require("express");
-const { Bug, validateBug } = require("../models/bug");
-const { Project } = require("../models/project");
+const mongoose = require("mongoose");
 const validateObjectId = require("../middleware/validateObjectId");
 const auth = require("../middleware/auth");
-const { default: mongoose } = require("mongoose");
+const { Bug, validateBug } = require("../models/bug");
+const { Project } = require("../models/project");
 const router = express.Router();
 
 // NOTE: get all Bugs
@@ -64,7 +64,10 @@ router.patch("/:id", [auth, validateObjectId], async (req, res) => {
     return res.status(404).send(" The bug with given ID was not found.");
 
   // INFO: the owner or admin can update the bug
-  if (req.user._id !== bug.user._id || req.user.isAdmin === "false") {
+  if (
+    req.user._id.toString() !== bug.user._id.toString() ||
+    req.user.isAdmin === "false"
+  ) {
     return res.status(405).send("Method not allowed.");
   }
 
@@ -97,6 +100,7 @@ router.delete("/:id", [auth, validateObjectId], async (req, res) => {
     return res.status(405).send("Method not allowed.");
   }
 
+  // INFO: use transaction to update multiple doc
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -130,7 +134,10 @@ router.get("/:id", [auth, validateObjectId], async (req, res) => {
     return res.status(404).send(" The bug with given ID was not found.");
 
   // INFO: the owner or admin can get the bug
-  if (req.user._id !== bug.user._id || req.user.isAdmin === "false") {
+  if (
+    req.user._id.toString() !== bug.user._id.toString() ||
+    req.user.isAdmin === "false"
+  ) {
     return res.status(405).send("Method not allowed.");
   }
   bug = await Bug.findById(req.params.id).populate(

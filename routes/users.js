@@ -42,7 +42,7 @@ router.patch("/:id", [auth, validateObjectId], async (req, res) => {
   }
 
   // INFO: the user can not change his account to be ADMIN
-  if (req.body.isAdmin === "true" || !req.user.isAdmin) {
+  if (req.body.isAdmin === "true" && req.user.isAdmin === "false") {
     return res.status(403).send("method not allowed.");
   }
 
