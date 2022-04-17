@@ -87,12 +87,40 @@ router.delete("/:id", [auth, validateObjectId], async (req, res) => {
   if (!bug)
     return res.status(404).send(" The bug with given ID was not found.");
 
+  let project = await Project.findById(bug.projectId);
+
   // INFO: the owner or admin can delete the bug
-  if (req.user._id !== bug.user._id || req.user.isAdmin === "false") {
+  if (
+    req.user._id.toString() !== bug.user._id.toString() ||
+    req.user.isAdmin === "false"
+  ) {
     return res.status(405).send("Method not allowed.");
   }
-  bug = await Bug.findByIdAndRemove(req.params.id);
-  return res.send(bug);
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    bug = await Bug.findByIdAndRemove(req.params.id, { session });
+    let projectBugs = [...project.bugs];
+    const pB = projectBugs.filter((cb) => {
+      return cb.bugId.toString() !== req.params.id.toString();
+    });
+    projectBugs = pB;
+    project.bugs = projectBugs;
+    project.save();
+    if (projectBugs.length() == pB.length()) {
+      await session.abortTransaction();
+      return res.send("failed to delete project ");
+    }
+
+    await session.commitTransaction();
+    return res.send(bug);
+  } catch (error) {
+    console.log("error deleting bug", error);
+    await session.abortTransaction();
+  } finally {
+    await session.endSession();
+  }
 });
 
 // NOTE: get one bug route
