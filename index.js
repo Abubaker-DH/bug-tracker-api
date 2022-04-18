@@ -97,5 +97,5 @@ mongoose
     useNewUrlParser: true,
   })
   .then(() =>
-    app.listen(PORT, () => winston.info(`server running on port ${PORT} ...`))
+    app.listen(PORT, () => console.log(`server running on port ${PORT} ...`))
   );
