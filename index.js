@@ -78,6 +78,9 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 require("./middleware/log")();
 
 // INFO: api routes
+app.get("/", (req, res) => {
+  res.send("Bug Tracker Api");
+});
 app.use("/api/v1/users", users);
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/projects", projects);
