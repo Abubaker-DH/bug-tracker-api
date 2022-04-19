@@ -18,7 +18,7 @@ router.get("/", auth, async (req, res) => {
   // INFO: user will get owen project
   projects = await Project.find({ user: req.user._id })
     .populate("user", "-isAdmin")
-    .populate("bugId");
+    .populate("bugs.bugId");
 
   res.send(projects);
 });
