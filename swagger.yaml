@@ -1,0 +1,535 @@
+openapi: 3.0.0
+info:
+  title: Bugs Tracker Api
+  description: This project is a backend of bugs tracker app.
+  contact: {}
+  version: "1.0"
+servers:
+  - url: http://localhost:3000/api/v1
+    variables: {}
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Sign Up
+      operationId: SignUp
+      parameters: []
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+        required: true
+      responses:
+        "201":
+          description: ""
+          headers: {}
+      deprecated: false
+      security: []
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Sign In
+      operationId: SignIn
+      parameters: []
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+      security: []
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get one User
+      operationId: GetoneUser
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+        - Users
+      summary: Delete User
+      operationId: DeleteUser
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    patch:
+      tags:
+        - Users
+      summary: Update User
+      operationId: UpdateUser
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            encoding: {}
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                profileImage:
+                  type: string
+                  format: binary
+                isAdmin:
+                  type: boolean
+                  example: false
+        required: false
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get All Users
+      operationId: GetAllUsers
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+  /bugs:
+    post:
+      tags:
+        - Bugs
+      summary: New Bug
+      operationId: NewBug
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewBugRequest"
+            example:
+              title: bug one
+              projectId: 625e9eafbc30c4d4b4133e64
+              description: discription about the bug
+              status: complete
+        required: true
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    get:
+      tags:
+        - Bugs
+      summary: All Bugs
+      operationId: AllBugs
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+  /bugs/{id}:
+    get:
+      tags:
+        - Bugs
+      summary: Get one Bug
+      operationId: GetoneBug
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+        - Bugs
+      summary: Delete Bug
+      operationId: DeleteBug
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    patch:
+      tags:
+        - Bugs
+      summary: Update Bug
+      operationId: UpdateBug
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBugRequest"
+        required: true
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+  /projects:
+    post:
+      tags:
+        - Projects
+      summary: New Project
+      operationId: NewProject
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewProjectRequest"
+            example:
+              title: D M agince websit
+        required: true
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    get:
+      tags:
+        - Projects
+      summary: All projects
+      operationId: Allprojects
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+  /projects/{id}:
+    get:
+      tags:
+        - Projects
+      summary: Get one Project
+      operationId: GetoneProject
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    delete:
+      tags:
+        - Projects
+      summary: Delete Project
+      operationId: DeleteProject
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+    patch:
+      tags:
+        - Projects
+      summary: Update Project
+      operationId: UpdateProject
+      parameters:
+        - name: x-auth-token
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+            example:
+              title: D M agince websit
+        required: true
+      responses:
+        "200":
+          description: ""
+          headers: {}
+      deprecated: false
+components:
+  schemas:
+    SignUpRequest:
+      title: SignUpRequest
+      required:
+        - name
+        - email
+        - password
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        name: ahmed
+        email: ahmed@gmail.com
+        password: ahmed123
+    SignInRequest:
+      title: SignInRequest
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: ahmed@gmail.com
+        password: ahmed123
+    NewBugRequest:
+      title: NewBugRequest
+      required:
+        - title
+        - projectId
+        - description
+        - status
+      type: object
+      properties:
+        title:
+          type: string
+        projectId:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+      example:
+        title: bug one
+        projectId: 625e9eafbc30c4d4b4133e64
+        description: discription about the bug
+        status: complete
+    UpdateBugRequest:
+      title: UpdateBugRequest
+      required:
+        - title
+        - description
+        - status
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+      example:
+        title: bug one
+        description: discription about the bug
+        status: complete
+    NewProjectRequest:
+      title: NewProjectRequest
+      required:
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+      example:
+        title: D M agince websit
+    UpdateProjectRequest:
+      title: UpdateProjectRequest
+      required:
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+      example:
+        title: D M agince websit
+  securitySchemes:
+    auth-token:
+      type: apiKey
+      name: x-auth-token
+      in: header
+security:
+  - auth-token: []
+tags:
+  - name: Auth
+    description: ""
+  - name: Users
+    description: ""
+  - name: Bugs
+    description: ""
+  - name: Projects
+    description: ""

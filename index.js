@@ -1,5 +1,7 @@
 const path = require("path");
 const winston = require("winston");
+const swaggerUI = require("swagger-ui-express");
+const YAML = require("yamljs");
 const helmet = require("helmet");
 const cors = require("cors");
 const xss = require("xss-clean");
@@ -30,6 +32,10 @@ app.use(
     max: 100,
   })
 );
+
+// INFO: Swagger
+const swaggerDocument = YAML.load("./swagger.yaml");
+
 //  INFO: production packages
 app.use(cors());
 app.use(xss());
@@ -79,8 +85,9 @@ require("./middleware/log")();
 
 // INFO: api routes
 app.get("/", (req, res) => {
-  res.send("Bug Tracker Api");
+  res.send('<h1>Bugs Tracker Api<h1><a href="/api-docs">Documentation</a>');
 });
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use("/api/v1/users", users);
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/projects", projects);

@@ -38,3 +38,6 @@ http://localhost:3000/api/v1/users
 http://localhost:3000/api/v1/auth
 
 You should see an empty arry []. That confirms that you have set up everything successfully.
+
+You can access the api over Heroku with:
+https://bugs-tracker-api-1.herokuapp.com/
