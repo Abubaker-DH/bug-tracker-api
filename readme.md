@@ -41,3 +41,4 @@ You should see an empty arry []. That confirms that you have set up everything s
 
 You can access the api over Heroku with:
 https://bugs-tracker-api-1.herokuapp.com/
+https://web-production-e081.up.railway.app/api-docs/
